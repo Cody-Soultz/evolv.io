@@ -4,6 +4,7 @@ class Board {
   int boardWidth;
   int boardHeight;
   int creatureMinimum;
+  int creatureMaximum;
   Tile[][] tiles;
   double year = 0;
   float MIN_TEMPERATURE;
@@ -80,6 +81,7 @@ class Board {
     }
 
     creatureMinimum = cm;
+    creatureMaximum = cm+200;
     creatures = new ArrayList<Creature>(0);
     maintainCreatureMinimum(false);
     for (int i = 0; i < LIST_SLOTS; i++) {
@@ -205,7 +207,7 @@ class Board {
       String[] buttonTexts = {"Brain Control", "Maintain pop. at "+creatureMinimum, 
         "Screenshot now", "-   Image every "+nf((float)imageSaveInterval, 0, 2)+" years   +", 
         "Text file now", "-    Text every "+nf((float)textSaveInterval, 0, 2)+" years    +", 
-        "-    Play Speed ("+playSpeed+"x)    +", "This button does nothing"};
+        "-    Play Speed ("+playSpeed+"x)    +", "Maximum pop. "+creatureMaximum};
       if (userControl) {
         buttonTexts[0] = "Keyboard Control";
       }
@@ -227,6 +229,9 @@ class Board {
             "                    +"+creatureMinimumIncrement, x+110, y+37);
         } else if (i <= 5) {
           text(getNextFileName(i-2), x+110, y+37);
+        } else if (i == 7){
+          text("-"+creatureMinimumIncrement+
+            "                    +"+creatureMinimumIncrement, x+110, y+37);
         }
       }
     } else {
@@ -345,6 +350,7 @@ class Board {
      rocks.get(i).collide(timeStep*OBJECT_TIMESTEPS_PER_YEAR);
      }*/
     maintainCreatureMinimum(false);
+    maintainCreatureMaximum();
     for (int i = 0; i < creatures.size(); i++) {
       Creature me = creatures.get(i);
       me.collide(timeStep);
@@ -500,6 +506,19 @@ class Board {
           random(MIN_CREATURE_ENERGY, MAX_CREATURE_ENERGY), 1, random(0, 1), 1, 1, 
           this, year, random(0, 2*PI), 0, "", "[PRIMORDIAL]", true, null, null, 1, random(0, 1)));
       }
+    }
+  }
+   private void maintainCreatureMaximum() {
+    creatureMaximum = max(creatureMaximum,creatureMinimum,0);
+    while (creatures.size() > creatureMaximum && creatures.size()>1) {
+        Creature me = creatures.get(0);
+        for(int i = 1; i<creatures.size();i++){
+          if(creatures.get(i).measure(1)>me.measure(1)){
+            me = creatures.get(i); 
+          }
+        }
+        me.returnToEarth();
+        creatures.remove(me);
     }
   }
   private Creature getRandomCreature() {

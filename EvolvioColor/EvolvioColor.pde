@@ -162,6 +162,12 @@ void mousePressed() {
               evoBoard.playSpeed *= 2;
             }
           }
+        } else if (buttonNum == 7) {
+          if (clickedOnLeft) {
+            evoBoard.creatureMaximum -= evoBoard.creatureMinimumIncrement;
+          } else {
+            evoBoard.creatureMaximum += evoBoard.creatureMinimumIncrement;
+          }
         }
       }
     } else if (mouseX >= height+10 && mouseX < width-50 && evoBoard.selectedCreature == null) {
